@@ -210,7 +210,7 @@ constructor TBall.Create;
 begin
   inherited Create;
   m_radius := 10;
-  m_speed := 3;
+  m_speed := 4;
   m_deltaX := m_speed;
   m_deltaY := -m_speed;
 end;
