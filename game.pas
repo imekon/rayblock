@@ -5,7 +5,7 @@ unit game;
 interface
 
 uses
-  Classes, SysUtils, raylib, thing;
+  Classes, SysUtils, raylib, thing, animator;
 
 type
 
@@ -18,9 +18,11 @@ type
     m_blocks: TBlockList;
     m_ball: TBall;
     m_paddle: TPaddle;
+    m_animator: TAnimator;
     procedure LoseALife;
     procedure ResetBall;
     procedure ResetLevel;
+    procedure QueueBlockAnimation(x, y: double; colour: TColor);
   public
     constructor Create;
     destructor Destroy; override;
@@ -58,6 +60,22 @@ begin
 
   ResetBall;
   m_ball.Speed := m_ball.Speed + 1;
+end;
+
+procedure TGame.QueueBlockAnimation(x, y: double; colour: TColor);
+var
+  data: TBlockAnimateData;
+  animation: TAnimate;
+  source, dest: TColor;
+
+begin
+  data := TBlockAnimateData.Create(0);
+  data.Initialise(x, y);
+  source := ColorBrightness(colour, 0.7);
+  dest := colour;
+  dest.a := 0;
+  animation := m_animator.AddAnimationColour(ANIM_EASEOUT, data, source, dest, 1);
+  animation.Start;
 end;
 
 constructor TGame.Create;
@@ -104,6 +122,8 @@ begin
   m_paddle := TPaddle.Create;
   m_paddle.X := 400;
   m_paddle.Y := PADDLE_MARGIN;
+
+  m_animator := TAnimator.Create;
 end;
 
 destructor TGame.Destroy;
@@ -116,6 +136,7 @@ begin
   for block in m_blocks do
     block.Free;
   m_blocks.Free;
+  m_animator.Free;
   inherited Destroy;
 end;
 
@@ -150,6 +171,7 @@ begin
       block.Visible := false;
       m_ball.DeltaY := -m_ball.DeltaY;
       m_score := m_score + block.Scoring * 10;
+      QueueBlockAnimation(block.X, block.Y, block.Colour);
       exit;
     end;
   end;
@@ -167,6 +189,8 @@ begin
   m_paddle.X := GetMouseX;
 
   if counter = 0 then ResetLevel;
+
+  m_animator.Update(delta);
 end;
 
 procedure TGame.Draw;
@@ -198,6 +222,8 @@ begin
     colour.a := 255;
     DrawText('GAME OVER', 150, 400, 120, colour);
   end;
+
+  m_animator.Draw;
 end;
 
 end.

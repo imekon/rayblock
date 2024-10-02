@@ -5,7 +5,7 @@ unit thing;
 interface
 
 uses
-  Classes, SysUtils, raylib, fgl;
+  Classes, SysUtils, raylib, fgl, animator;
 
 type
 
@@ -48,9 +48,24 @@ type
 
     property Visible: boolean read m_visible write m_visible;
     property Scoring: integer read m_scoring;
+    property Colour: TColor read m_colour;
   end;
 
   TBlockList = specialize TFPGList<TBlock>;
+
+  { TBlockAnimateData }
+
+  TBlockAnimateData = class(TAnimateData)
+  private
+    m_x, m_y: double;
+  public
+    constructor Create(w: integer); override;
+    destructor Destroy; override;
+    procedure Initialise(x, y: double);
+    procedure Draw(animate: TAnimate); override;
+    property X: double read m_x;
+    property Y: double read m_y;
+  end;
 
   { TBall }
 
@@ -147,6 +162,33 @@ procedure TBlock.Draw;
 begin
   if m_visible then
     DrawRectangle(X, Y, BLOCK_WIDTH, BLOCK_HEIGHT, m_colour);
+end;
+
+{ TBlockAnimateData }
+
+constructor TBlockAnimateData.Create(w: integer);
+begin
+  inherited Create(w);
+end;
+
+destructor TBlockAnimateData.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TBlockAnimateData.Initialise(x, y: double);
+begin
+  m_x := x;
+  m_y := y;
+end;
+
+procedure TBlockAnimateData.Draw(animate: TAnimate);
+var
+  animColour: TAnimateColour;
+
+begin
+  animColour := animate as TAnimateColour;
+  DrawRectangle(round(m_x), round(m_y), BLOCK_WIDTH, BLOCK_HEIGHT, animColour.Where);
 end;
 
 { TBall }
