@@ -97,7 +97,7 @@ begin
         if y < 3 then
         begin
           colour := RED;
-          scoring := 3;
+          scoring := 5;
         end
         else if y < 6 then
         begin
