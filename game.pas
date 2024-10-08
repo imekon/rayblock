@@ -23,6 +23,8 @@ type
     procedure ResetBall;
     procedure ResetLevel;
     procedure QueueBlockAnimation(x, y: double; colour: TColor);
+    function ClampLow(value, limit: double): double;
+    function ClampHigh(value, limit: double): double;
   public
     constructor Create;
     destructor Destroy; override;
@@ -76,6 +78,18 @@ begin
   dest.a := 0;
   animation := m_animator.AddAnimationColour(ANIM_EASEOUT, data, source, dest, 1);
   animation.Start;
+end;
+
+function TGame.ClampLow(value, limit: double): double;
+begin
+  if value < limit then value := limit;
+  result := value;
+end;
+
+function TGame.ClampHigh(value, limit: double): double;
+begin
+  if value > limit then value := limit;
+  result := value;
 end;
 
 constructor TGame.Create;
@@ -182,7 +196,11 @@ begin
     val := m_ball.X - center;
     if abs(val) < 5 then m_ball.DeltaX := Random * 0.2 - 0.1
     else
-      if val < 0 then m_ball.DeltaX := -m_ball.Speed else m_ball.DeltaX := m_ball.Speed;
+      m_ball.DeltaX := m_ball.Speed * val / 10;
+
+    m_ball.DeltaX := ClampLow(m_ball.DeltaX, -DELTA_LIMIT);
+    m_ball.DeltaX := ClampHigh(m_ball.DeltaX, DELTA_LIMIT);
+
     m_ball.DeltaY := -m_ball.DeltaY;
   end;
 
