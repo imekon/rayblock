@@ -163,6 +163,8 @@ var
   counter: integer;
 
 begin
+  if m_lives <= 0 then exit;
+
   delta := GetFrameTime;
 
   m_ball.Update(delta);
@@ -231,6 +233,8 @@ begin
 
     DrawText(PChar('Lives: ' + IntToStr(m_lives)), 10, 10, 20, WHITE);
     DrawText(PChar('Score: ' + IntToStr(m_score)), 10, 30, 20, WHITE);
+
+    m_animator.Draw;
   end
   else
   begin
@@ -240,8 +244,6 @@ begin
     colour.a := 255;
     DrawText('GAME OVER', 150, 400, 120, colour);
   end;
-
-  m_animator.Draw;
 end;
 
 end.
